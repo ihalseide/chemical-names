@@ -1,63 +1,63 @@
-H;	hydrogen;	[+1];	;	False
-Li;	lithium;	[+1];	;	False
-Be;	beryllium;	[+2];	;	False
-B;	boron;	[-4];	;	False
-C;	carbon;	[-4];	carb;	False
-N;	nitrogen;	[-3];	nitr;	False
-O;	oxygen;	[-2];	ox;	False
-F;	fluorine;	[-1];	fluor;	False
-Na;	sodium;	[+1];	;	False
-Mg;	magnesium;	[+2];	;	False
-Al;	aluminum;	[+3];	;	False
-Si;	silicon;	[+3];	;	False
-P;	phosphorus;	[-3];	phosph;	False
-S;	sulfur;	[-2];	sulf;	False
-Cl;	chlorine;	[-1];	chlor;	False
-K;	potassium;	[+1];	;	False
-Ca;	calcium;	[+2];	;	False
-Fe;	iron;	[+2, +3];	;	False
-Ag;	silver;	[+1];	;	False
-Zn;	zinc;	[+2];	;	False
-Cd;	cadmium;	[+2];	;	False
-Pb;	lead;	[+2, +4];	;	False
-Sn;	tin;	[+2, +4];	;	False
-Cr;	chromium;	[+2, +3, +6];	;	False
-Mn;	manganese;	[+2, +4, +7];	;	False
-Hg;	mercury;	[+1, +2];	;	False
-Cu;	copper;	[+1, +2];	;	False
-Ni;	nickel;	[+2, +3];	;	False
-Co;	cobalt;	[+2, +3];	;	False
-Se;	selenium;	[-2];	selen;	False
-Br;	bromine;	[-1];	brom;	False
-Rb;	rubidium;	[+1];	;	False
-Sr;	strontium;	[+2];	;	False
-I;	iodine;	[-1];	iod;	False
-Cs;	caesium;	[+1];	;	False
-Ba;	barium;	[+2];	;	False
-Fr;	francium;	[+1];	;	False
-Ra;	radium;	[+2];	;	False
+H; hydrogen; [+1]; ; False
+Li; lithium; [+1]; ; False
+Be; beryllium; [+2]; ; False
+B; boron; [-4]; ; False
+C; carbon; [-4]; carb; False
+N; nitrogen; [-3]; nitr; False
+O; oxygen; [-2]; ox; False
+F; fluorine; [-1]; fluor; False
+Na; sodium; [+1]; ; False
+Mg; magnesium; [+2]; ; False
+Al; aluminum; [+3]; ; False
+Si; silicon; [+3]; ; False
+P; phosphorus; [-3]; phosph; False
+S; sulfur; [-2]; sulf; False
+Cl; chlorine; [-1]; chlor; False
+K; potassium; [+1]; ; False
+Ca; calcium; [+2]; ; False
+Fe; iron; [+2, +3]; ; False
+Ag; silver; [+1]; ; False
+Zn; zinc; [+2]; ; False
+Cd; cadmium; [+2]; ; False
+Pb; lead; [+2, +4]; ; False
+Sn; tin; [+2, +4]; ; False
+Cr; chromium; [+2, +3, +6]; ; False
+Mn; manganese; [+2, +4, +7]; ; False
+Hg; mercury; [+1, +2]; ; False
+Cu; copper; [+1, +2]; ; False
+Ni; nickel; [+2, +3]; ; False
+Co; cobalt; [+2, +3]; ; False
+Se; selenium; [-2]; selen; False
+Br; bromine; [-1]; brom; False
+Rb; rubidium; [+1]; ; False
+Sr; strontium; [+2]; ; False
+I; iodine; [-1]; iod; False
+Cs; caesium; [+1]; ; False
+Ba; barium; [+2]; ; False
+Fr; francium; [+1]; ; False
+Ra; radium; [+2]; ; False
 
-H3O;	hydronium;	[+1];	;	True
-NH4;	ammonium;	[+1];	;	True
-OH;	hydroxide;	[-1];	;	True
-NO3;	nitrate;	[-1];	;	True
-NO2;	nitrite;	[-1];	;	True
-CO3;	carbonate;	[-2];	;	True
-CrO4;	chromate;	[-2];	;	True
-Cr2O7;	dichromate;	[-2];	;	True
-SCN;	thiocyanate;	[-1];	;	True
-S2O3;	thiosulfate;	[-2];	;	True
-SO4;	sulfate;	[-2];	;	True
-SO3;	sulfite;	[-2];	;	True
-CN;	cyanide;	[-1];	;	True
-ClO4;	perchlorate;	[-1];	;	True
-ClO3;	chlorate;	[-1];	;	True
-ClO2;	chlorite;	[-1];	;	True
-ClO1;	hypochlorite;	[-1];	;	True
-PO4;	phosphate;	[-3];	;	True
-PO3;	phosphite;	[-3];	;	True
-CH3COO;	acetate;	[-1];	;	True
-OH;	hydroxide;	[-1];	;	True
-MnO4;	permanganate;	[-1];	;	True
-SiO3;	silicate;	[-2];	;	True
-IO3;	iodate;	[-1];	;	True
+H3O; hydronium; [+1]; ; True
+NH4; ammonium; [+1]; ; True
+OH; hydroxide; [-1]; ; True
+NO3; nitrate; [-1]; ; True
+NO2; nitrite; [-1]; ; True
+CO3; carbonate; [-2]; ; True
+CrO4; chromate; [-2]; ; True
+Cr2O7; dichromate; [-2]; ; True
+SCN; thiocyanate; [-1]; ; True
+S2O3; thiosulfate; [-2]; ; True
+SO4; sulfate; [-2]; ; True
+SO3; sulfite; [-2]; ; True
+CN; cyanide; [-1]; ; True
+ClO4; perchlorate; [-1]; ; True
+ClO3; chlorate; [-1]; ; True
+ClO2; chlorite; [-1]; ; True
+ClO1; hypochlorite; [-1]; ; True
+PO4; phosphate; [-3]; ; True
+PO3; phosphite; [-3]; ; True
+CH3COO; acetate; [-1]; ; True
+OH; hydroxide; [-1]; ; True
+MnO4; permanganate; [-1]; ; True
+SiO3; silicate; [-2]; ; True
+IO3; iodate; [-1]; ; True
