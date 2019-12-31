@@ -15,11 +15,23 @@ Name a chemical given its formula.
 import re
 
 
+# An element is a uppercase letter maybe followed by a lowercase letter and a number
 ELEMENT_PAT = r'([A-Z][a-z]?)([0-9]*)'
 ELEMENT_RE = re.compile(ELEMENT_PAT)
+
+# A valid formula is a bunch of elements strung together with no whitespace
 VALID_FORMULA_RE = re.compile(r'(([A-Z][a-z]?)([0-9]*))+')
 
+# For splitting up CSV values (separation by semicolon and maybe a tab)
+CSV_RE = re.compile(r';\t?')
 
+# A dictionary that maps symbols to Ion objects
+IONS = dict() # (it will be loaded later)
+
+# A dictionary that maps just element symbols to Ion objects
+ELEMETS = dict() # (it will be loaded later)
+
+# Prefixes for something like "hexa-fluoride"
 PREFIXES = {
 	1: 'mono',
 	2: 'di',
@@ -32,8 +44,8 @@ PREFIXES = {
 	9: 'nova',
 	10: 'deca' # ?
 }
-	
-	
+
+
 class Ion:
 
 	def __init__(self, symbol: str, name: str, charges: tuple,
@@ -48,100 +60,82 @@ class Ion:
 			self.charges = tuple(self.charges)
 		self.name_stem = str(name_stem).lower()
 		self.is_compound = bool(is_compound)
-		
-			
+
+
+	def __str__(self):
+		return self.symbol
+
+
+	def __repr__(self):
+		return self.symbol
+
+
 	@property
 	def is_metal(self) -> bool:
 		if self.is_compound:
 			raise ValueError('see code')
 		return self.charges[0] > 0
-		
-		
+
+
 	@property
 	def ic_name(self) -> str:
 		if self.symbol == 'S':
 			# Sulfur exception
 			return 'sulfuric'
 		return self.name_stem + 'ic'
-		
-		
+
+
 	@property
 	def ide_name(self) -> str:
 		return self.name_stem + 'ide'
-		
-		
-	def __str__(self):
-		return self.symbol
-		
-		
-	def __repr__(self):
-		return self.symbol
 
 
-# Elements incomplete!
-ELEMENTS = {t[0]: Ion(*t) for t in (
-	('H', 'hydrogen', +1),
-	('Li', 'lithium', +1),
-	('Be', 'beryllium', +2),
-	('B', 'boron', ()),
-	('C', 'carbon', -4, 'carb'),
-	('N', 'nitrogen', -3, 'nitr'),
-	('O', 'oxygen', -2, 'ox'),
-	('F', 'fluorine', -1, 'fluor'),
-	('Na', 'sodium', +1),
-	('Mg', 'magnesium', +2),
-	('Al', 'aluminum', +3),
-	('Si', 'silicon', +3),
-	('P', 'phosphorus', -3, 'phosph'),
-	('S', 'sulfur', -2, 'sulf'),
-	('Cl', 'chlorine', -1, 'chlor'),
-	('Ag', 'silver', +1),
-	('Zn', 'zinc', +2),
-	('Cd', 'cadmium', +2),
-	('Pb', 'lead', (+2, +4)),
-	('Fe', 'iron', (+2, +3)),
-	('Sn', 'tin', (+2, +4)),
-	('Cr', 'chromium', (+2, +3, +6)),
-	('Mn', 'manganese', (+2, +4, +7)),
-	('Hg', 'mercury', (+1, +2)),
-	('Cu', 'copper', (+1, +2)),
-	('Ni', 'nickel', (+2, +3)),
-	('Co', 'cobalt', (+2, +3))
-)}
+def int_list_str_to_tuple(list_str: str) -> tuple:
+	'''
+	Converts a string that represents a list of ints to a tuple of ints.
+	'''
+	# Take off surrounding brackets and split by commas
+	str_list = list_str[1:-1].split(',')
+	# Convert each str element into an int
+	return [int(s) for s in str_list]
 
 
-POLY_IONS = {i[0]: Ion(*i, is_compound=True) for i in (
-	('H3O', 'hydronium', +1),
-	('NH4', 'ammonium', +1),
-	('OH', 'hydroxide', -1),
-	('NO3', 'nitrate', -1),
-	('NO2', 'nitrite', -1),
-	('CO3', 'carbonate', -2),
-	('CrO4', 'chromate', -2),
-	('Cr2O7', 'dichromate', -2),
-	('SCN', 'thiocyanate', -1),
-	('S2O3', 'thiosulfate', -2),
-	('SO4', 'sulfate', -2),
-	('SO3', 'sulfite', -2),
-	('CN', 'cyanide', -1),
-	('ClO4', 'perchlorate', -1),
-	('ClO3', 'chlorate', -1),
-	('ClO2', 'chlorite', -1),
-	('ClO1', 'hypochlorite', -1),
-	('PO4', 'phosphate', -3),
-	('PO3', 'phosphite', -3),
-	('CH3COO', 'acetate', -1),
-	('OH', 'hydroxide', -1),
-	('MnO4', 'permanganate', -1),
-	('SiO3', 'silicate', -2),
-	('IO3', 'iodate', -1)
-)}
+def line_to_ion(line: str) -> Ion:
+	data = re.split(CSV_RE, line)
+	symbol, name, charges, name_stem, is_compound = data
+	charges = int_list_str_to_tuple(charges)
+	is_compound = (is_compound.lower() == 'true') # Convert boolean string to bool
+	if not name_stem:
+		name_stem = None
+	return Ion(symbol, name, charges, name_stem, is_compound)
 
 
-IONS = {**ELEMENTS, **POLY_IONS}
+def get_ions_data(filename: str = 'ions.txt'):
+	'''
+	Read a CSV file for ion data
+	'''
+	ions_data = {}
+	with open(filename) as file:
+		for line in file:
+			line = line.strip()
+			if line:
+				new_ion = line_to_ion(line)
+				ions_data[new_ion.symbol] = new_ion
+	return ions_data
+
+
+# Load the ions and elements here
+IONS = get_ions_data()
+ELEMENTS = { symbol: ion for (symbol, ion) in IONS.items() if not ion.is_compound }
 
 
 def read_element(string: str, index: int = 0, convert: bool = True) -> (Ion, int, int):
+	'''
+	Read 1 element from the formula and return a tuple
+		(`element`, the amount of the element, and the next index)
+	The `convert` flag determines whether to convert the element symbol from the formula into an `Ion`
+	instance.
+	'''
 	substr = string[index:]
 	result = ELEMENT_RE.search(substr)
 	if result:
@@ -160,11 +154,17 @@ def read_element(string: str, index: int = 0, convert: bool = True) -> (Ion, int
 		return None, None, index
 
 
-def read_elements(string: str, convert: bool = True):
+def read_elements(formula: str, convert: bool = True) -> list:
+	'''
+	Reads as many of the elements from a formula as it can
+	The `convert` boolean determines if the found elements will be converted into `Ion` instances, or
+	just left as strings as they appear in the `formula`.
+	Returns a list of tuple pairs with the element and the amount of the element
+	'''
 	index = 0
 	elements = []
 	while True:
-		sym, num, index = read_element(string, index, convert)
+		sym, num, index = read_element(formula, index, convert)
 		if sym:
 			elements.append((sym, num))
 		else:
@@ -172,14 +172,19 @@ def read_elements(string: str, convert: bool = True):
 	return elements
 
 
-def read_ion(string: str, index: int = 0) -> (Ion, int):
+def read_ion(formula: str, index: int = 0) -> (Ion, int):
+	'''
+	Try to read the biggest known ion possible from the formula string and return the index
+	that comes right after the found ion.
+	If it returns a tuple with None as the first element, something went wrong...
+	'''
 	# Try to read the biggest ion possible
 	size = 0
 	best_ion = None
 	for ion_symbol in IONS:
 		ion = IONS[ion_symbol]
 		check_size = len(ion_symbol)
-		check_string = string[index:index + check_size]
+		check_string = formula[index:index + check_size]
 		if check_string == ion_symbol:
 			if check_size > size:
 				size = check_size
@@ -188,21 +193,27 @@ def read_ion(string: str, index: int = 0) -> (Ion, int):
 		end_index = index + size
 	else:
 		# It is an element, and might have a number after it...
-		_, _, end_index = read_element(string, index)
+		_, _, end_index = read_element(formula, index)
 	return (best_ion, end_index)
-	
+
 
 def roman(num: int) -> str:
+	'''
+	Convert a integer from 1-10 to its Roman numeral equivalent (lower case)
+	'''
 	# We just need a few small integers because nothing should get bigger than 10
 	if 1 <= num <= 10:
 		return ('i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x')[num - 1]
-		
 
-def validate_formula(formula):
+
+def validate_formula(formula: str) -> (bool, str):
+	'''
+	Validates the formula by its syntax, not by checking if it is chemically possible.
+	'''
 	# check the conventions
 	if not VALID_FORMULA_RE.fullmatch(formula):
 		return False, 'Invalid format or characters'
-	# check the elements exist and the charges add up 
+	# check the elements exist and the charges add up
 	# WARNING: THE CHARGES ADDING UP MIGHT HAVE EXCEPTIONS I DON'T KNOW ABOUT
 	elements = read_elements(formula, False)
 #	 total_charge = 0
@@ -214,24 +225,38 @@ def validate_formula(formula):
 #		 total_charge += charge * num
 #	 if not total_charge == 0:
 #		 return False, 'Charge doesn\'t balance'
-	return True, None
+	return True, 'No problem'
 
 
 def get_num_prefix(num):
+	'''
+	Get the prefix for a certain number.
+	E.G. [1] -> [mono-]
+	'''
 	return PREFIXES[num]
-	
+
 
 def add_prefix(ion: Ion, amount: int) -> str:
+	'''
+	Get the name of an ion with a certain prefix.
+	'''
 	prefix = get_num_prefix(amount)
 	return prefix + ion.name
-	
-	
+
+
 def add_prefix_and_ide(ion: Ion, amount: int) -> str:
+	'''
+	Get the name of an ion in its "ide" form with a certain prefix.
+	'''
 	prefix = get_num_prefix(amount)
 	return prefix + ion.ide_name
-	
+
 
 def name_formula(formula: str) -> str:
+	'''
+	Given a chemical formula, name it.
+	(Works for non-organic chemistry and simpler formulas)
+	'''
 	# Exceptions
 	if formula == 'H2O':
 		return 'water'
@@ -251,7 +276,7 @@ def name_formula(formula: str) -> str:
 			if not other.charges[0] < 0:
 				raise ValueError()
 			# Put into template with '-ic' form
-			return 'hydro{} acid'.format(other.ic_name)			
+			return 'hydro{} acid'.format(other.ic_name)
 		# -ate or -ite?
 		anion, _ = read_ion(formula, next_index)
 		anion_name = anion.name
@@ -265,13 +290,23 @@ def name_formula(formula: str) -> str:
 		# Metal-nonmetal naming
 		# Multiple charges?
 		cation = first
-		anion, _ = read_ion(formula, next_index)
-		anion_ide = anion.ide_name
-		if len(cation.charges) > 1:
-			# Multiple charges
-			number = -987654321 # TODO
-			return '{} ({}) {}'.format(cation.name, number, anion_ide)
-		return '{} {}'.format(cation.name, anion_ide)
+		if next_index < len(formula):
+			# There actually can be an anion...
+			anion, _ = read_ion(formula, next_index)
+			anion_ide = anion.ide_name
+			if len(cation.charges) > 1:
+				# Multiple charges
+				if anion.is_compound:
+					#number = ???
+					pass
+				else:
+					_, anion_amount, _ = read_element(formula, next_index)
+					number = anion_amount # number of anion atoms (huge oversimplification)
+				return '{} ({}) {}'.format(cation.name, roman(number).upper(), anion_ide)
+			return '{} {}'.format(cation.name, anion_ide)
+		else:
+			# No anion in the formula, so just return the cation
+			return cation.name
 	else:
 		# Nonmetal-nonmetal naming
 		# Prefixes
@@ -296,19 +331,26 @@ def name_formula(formula: str) -> str:
 def print_all_ions():
 	for i in IONS.values():
 		print(str.ljust(i.symbol, 6), '|', i.name)
-		
-		
+
+
 def main():
+	'''
+	Get the user to input a formula and print out the result
+	'''
 	#print_all_ions()
 	while True:
-		f = input('Enter formula: ')
-		if f:
-			name = name_formula(f)
-			print('-->',name,'\n')
+		formula = input('Enter formula: ')
+		if formula:
+			try:
+				name = name_formula(formula)
+				print('-->', name)
+			except ValueError as err:
+				print('(X)', err)
+			print()
 		else:
 			break
-	
-	
+
+
 if __name__ == '__main__':
 	main()
 
