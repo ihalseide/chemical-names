@@ -23,7 +23,7 @@ ELEMENT_RE = re.compile(ELEMENT_PAT)
 VALID_FORMULA_RE = re.compile(r'(([A-Z][a-z]?)([0-9]*))+')
 
 # For splitting up CSV values (separation by semicolon and maybe a tab)
-CSV_RE = re.compile(r';\t?')
+CSV_RE = re.compile(r';\s?')
 
 # A dictionary that maps symbols to Ion objects
 IONS = dict() # (it will be loaded later)
@@ -90,14 +90,20 @@ class Ion:
 		return self.name_stem + 'ide'
 
 
+def ion_charge_string_to_int(charge_str: str) -> int:
+	working_str = charge_str.strip()
+	return int(working_str[-1] + working_str[:-1]) # flip the sign to the beginning
+	
+
 def int_list_str_to_tuple(list_str: str) -> tuple:
 	'''
 	Converts a string that represents a list of ints to a tuple of ints.
 	'''
 	# Take off surrounding brackets and split by commas
-	str_list = list_str[1:-1].split(',')
+	str_list = list_str.strip().split(',')
+	# print('in <',list_str,'> out <',str_list,'>')
 	# Convert each str element into an int
-	return [int(s) for s in str_list]
+	return [ion_charge_string_to_int(s) for s in str_list]
 
 
 def line_to_ion(line: str) -> Ion:
@@ -280,12 +286,15 @@ def name_formula(formula: str) -> str:
 		# -ate or -ite?
 		anion, _ = read_ion(formula, next_index)
 		anion_name = anion.name
-		stem = anion_name[:-3] # take out the last 3
+		if anion.name_stem:
+			stem = anion.name_stem
+		else:
+			stem = anion_name[:-3] # take out the last 3
 		# ___ous acid or ___ic acid
 		if anion.name.endswith('ate'):
-			return '{}ous acid'.format(stem)
-		else:
 			return '{}ic acid'.format(stem)
+		else:
+			return '{}ous acid'.format(stem)
 	elif first.is_metal:
 		# Metal-nonmetal naming
 		# Multiple charges?
@@ -297,8 +306,8 @@ def name_formula(formula: str) -> str:
 			if len(cation.charges) > 1:
 				# Multiple charges
 				if anion.is_compound:
-					#number = ???
-					pass
+					# TODO: for now, just use 1, but an actual number could come after parantheses
+					number = 1
 				else:
 					_, anion_amount, _ = read_element(formula, next_index)
 					number = anion_amount # number of anion atoms (huge oversimplification)
