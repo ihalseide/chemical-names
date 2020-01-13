@@ -19,8 +19,20 @@
                                '(12 "?")
                                '(13 "?")))
 
+(defun read-upper-char (stream))
 
-(defun read-element (stream &optional (do-read-number t)))
+
+(defun read-element-symbol (stream)
+  ; USE REGEX?
+  (concat (read-char stream)
+          (read-char stream)))
+
+
+(defun read-element (stream &optional (do-read-number t))
+  (let ((element-symbol (read-element-symbol stream)))
+       (if do-read-number
+           (list element-symbol number)
+           element-symbol)))
 
 
 (defun read-ion (stream &optional (do-read-number t)))
@@ -132,4 +144,3 @@
 
 
 (load-ions)
-(read-and-name-formulas) ; "main", but shouldn't be done if used as a module (somehow)
