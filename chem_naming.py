@@ -25,12 +25,6 @@ VALID_FORMULA_RE = re.compile(r'(([A-Z][a-z]?)([0-9]*))+')
 # For splitting up CSV values (separation by semicolon and maybe a tab)
 CSV_RE = re.compile(r';\s?')
 
-# A dictionary that maps symbols to Ion objects
-IONS = dict() # (it will be loaded later)
-
-# A dictionary that maps just element symbols to Ion objects
-ELEMETS = dict() # (it will be loaded later)
-
 # Prefixes for something like "hexa-fluoride"
 PREFIXES = {
 	1: 'mono',
@@ -47,9 +41,7 @@ PREFIXES = {
 
 
 class Ion:
-
-	def __init__(self, symbol: str, name: str, charges: tuple,
-					name_stem: str = None, is_compound: bool = False):
+	def __init__(self, symbol: str, name: str, charges: tuple, name_stem: str = None, is_compound: bool = False):
 		self.symbol = str(symbol)
 		self.name = str(name).lower()
 		# make sure charges is a tuple
@@ -61,14 +53,11 @@ class Ion:
 		self.name_stem = str(name_stem).lower()
 		self.is_compound = bool(is_compound)
 
-
 	def __str__(self):
 		return self.symbol
 
-
 	def __repr__(self):
 		return self.symbol
-
 
 	@property
 	def is_metal(self) -> bool:
@@ -76,14 +65,12 @@ class Ion:
 			raise ValueError('see code')
 		return self.charges[0] > 0
 
-
 	@property
 	def ic_name(self) -> str:
 		if self.symbol == 'S':
 			# Sulfur exception
 			return 'sulfuric'
 		return self.name_stem + 'ic'
-
 
 	@property
 	def ide_name(self) -> str:
@@ -130,9 +117,15 @@ def get_ions_data(filename: str = 'ions.txt'):
 	return ions_data
 
 
-# Load the ions and elements here
-IONS = get_ions_data()
-ELEMENTS = { symbol: ion for (symbol, ion) in IONS.items() if not ion.is_compound }
+def get_formulas_data(filename: str = 'formulas.txt'):
+	formula_data = {}
+	with open(filename) as file:
+		for line in file:
+			line = line.strip()
+			if line:
+				formula, name = line.split(',')
+				formula_data[formula] = name
+	return formula_data
 
 
 def read_element(string: str, index: int = 0, convert: bool = True) -> (Ion, int, int):
@@ -258,9 +251,16 @@ def add_prefix_and_ide(ion: Ion, amount: int) -> str:
 	return prefix + ion.ide_name
 
 
-def name_formula(formula: str) -> str:
+def lookup_formula(formula: str) -> str:
 	'''
 	Given a chemical formula, name it.
+	But use a database instead of rules to name it.
+	'''
+	return FORMULAS.get(formula, None)
+
+def name_formula(formula: str) -> str:
+	'''
+	Given a chemical formula, name it using chemical naming rules.
 	(Works for non-organic chemistry and simpler formulas)
 	'''
 	# Exceptions
@@ -358,6 +358,14 @@ def main():
 			print()
 		else:
 			break
+
+			
+# A dictionary that maps symbols to Ion objects
+IONS = get_ions_data()
+# A dictionary that maps just element symbols to Ion objects
+ELEMENTS = { symbol: ion for (symbol, ion) in IONS.items() if not ion.is_compound }
+# A dictionary that maps names to formulas
+FORMULAS = get_formulas_data()
 
 
 if __name__ == '__main__':
