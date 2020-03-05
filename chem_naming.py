@@ -341,6 +341,13 @@ def print_all_ions():
 	for i in IONS.values():
 		print(str.ljust(i.symbol, 6), '|', i.name)
 
+		
+def conform_formula(formula: str) -> str:
+	'''
+	Standardize equivalent formulas down to 1 guaranteed formula.
+	'''
+	pass
+
 
 def main():
 	'''
