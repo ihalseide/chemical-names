@@ -1,0 +1,29 @@
+H3O, hydronium
+NH4, ammonium
+OH, hydroxide
+NO3, nitrate
+NO2, nitrite
+CO3, carbonate
+CrO4, chromate
+Cr2O7, dichromate
+SCN, thiocyanate
+S2O3, thiosulfate
+SO4, sulfate
+SO3, sulfite
+CN, cyanide
+ClO4, perchlorate
+ClO3, chlorate
+ClO2, chlorite
+ClO1, hypochlorite
+PO4, phosphate
+PO3, phosphite
+CH3COO, acetate
+OH, hydroxide
+MnO4, permanganate
+SiO3, silicate
+IO3, iodate
+H2O, water
+CO2, carbon dioxide
+NO3, nitrogen trioxide
+CO, carbon monoxide
+HF, hydrofluoric acid
