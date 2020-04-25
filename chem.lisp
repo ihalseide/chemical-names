@@ -110,12 +110,11 @@
   "Shortcut to turn 1 thing into a 1 element list."
   (if (listp x) x (list x)))
 
-(defun formula->name (formula-str)
-  (let ((match (find formula-str *chemical-exceptions*
-		     :key (lambda (entry) (first entry)))))
-    (cond (match (second match))
-	  (t
-	   "Unknown."))))
+(defun name-formula (formula)
+  (let ((match (find formula *chemical-exceptions* :test #'string= :key (lambda (entry) (getf entry :formula)))))
+    (cond (match (getf match :name))
+          (t
+           "Unknown."))))
 
 (defun load-chem-info ()
   (setf *elements* (load-elements "elements.txt"))
@@ -126,16 +125,16 @@
   "Load all of the element compounds data."
   (with-open-file (stream filepath)
     (loop for line = (read-line stream nil)
-       while line
-       if (char/= (elt line 0) #\;)
-       collect (parse-compound-def line))))
+          while line
+          if (char/= (elt line 0) #\;)
+          collect (parse-compound-def line))))
 
 (defun load-chem-exceptions (filepath)
   (with-open-file (stream filepath)
     (loop for line = (read-line stream nil)
-       while line
-       if (char/= (elt line 0) #\;)
-       collect (parse-name-def line))))
+          while line
+          if (char/= (elt line 0) #\;)
+          collect (parse-name-def line))))
 
 (defun parse-name-def (string)
   (destructuring-bind (formula name) (split-string string)
@@ -144,9 +143,9 @@
 (defun name-ionic-compound (ionic-compound)
   (let ((ions (read-compounds ionic-compound)))
     (if (> (length ions) 2)
-	(error "Ionic compound may only have 2 ions."))
+        (error "Ionic compound may only have 2 ions."))
     (let ((cation (name-ion (first ions)))
-	  (anion (name-ion (second ions))))
+          (anion (name-ion (second ions))))
       (format nil "~a ~a" cation anion))))
 
 (defun name-ion (ion)
@@ -232,3 +231,4 @@
   ;; This handler case catches popping from an empty vector.
   (handler-case (vector-pop vector)
     (simple-error () sentinel)))
+
