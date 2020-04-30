@@ -1,119 +1,119 @@
-; atomic #, symbol, name, period #, group #, nonmetal | metal, charges*
-1 H hydrogen 1 1 metal 1+
-2 He helium 1 18 nonmetal 
-3 Li lithium 2 1 metal 1+
-4 Be beryllium 2 2 metal 2+
-5 B boron 2 13 metal 4-
-6 C carbon 2 14 nonmetal 4-
-7 N nitrogen 2 15 nonmetal 3-
-8 O oxygen 2 16 nonmetal 2-
-9 F fluorine 2 17 nonmetal 1-
-10 Ne neon 2 18 nonmetal
-11 Na sodium 3 1 metal 1+
-12 Mg magnesium 3 2 metal 2+
-13 Al aluminum 3 13 metal 3+
-14 Si silicon 3 14 metal 3+
-15 P phosphorus 3 15 nonmetal 3-
-16 S sulfur 3 16 nonmetal 2-
-17 Cl chlorine 3 17 nonmetal 1-
-18 Ar argon 3 18 nonmetal
-19 K potassium 4 1 metal 1+
-20 Ca calcium 4 2 metal 2+
-21 Sc scandium 4 3 metal
-22 Ti titanium 4 4 metal
-23 V vanadium 4 5 metal
-24 Cr chromium 4 6 metal 2+ 3+ 6+
-25 Mn manganese 4 7 metal 2+ 4+ 7+
-26 Fe iron 4 8 metal 3+
-27 Co cobalt 4 9 metal 2+ 3+
-28 Ni nickel 4 10 metal 2+ 3+
-29 Cu copper 4 11 metal 1+ 2+
-30 Zn zinc 4 12 metal 2+
-31 Ga gallium 4 13 metal
-32 Ge germanium 4 14 metal
-33 As arsenic 4 15 metal
-34 Se selenium 4 16 1 2-
-35 Br bromine 4 17 1 1-
-36 Kr krypton 4 18 1
-37 Rb rubidium 5 1 metal 1+
-38 Sr strontium 5 2 metal 2+
-39 Y yttrium 5 3 metal
-40 Zr zirconium 5 4 metal
-41 Nb niobium 5 5 metal
-42 Mo molybdenum 5 6 metal
-43 Tc technetium 5 7 metal
-44 Ru ruthenium 5 8 metal
-45 Rh rhodium 5 9 metal
-46 Pd palladium 5 10 metal
-47 Ag silver 5 11 metal 1+
-48 Cd cadmium 5 12 metal 2+
-49 In indium 5 13 metal
-50 Sn tin 5 14 metal 2+ 4+
-51 Sb antimony 5 15 metal
-52 Te tellurium 5 16 metal
-53 I iodine 5 17 1 1-
-54 Xe xenon 5 18 1
-55 Cs caesium 6 1 metal 1+
-56 Ba barium 6 2 metal 2+
-57 La lanthanum 6 3 metal
-58 Ce cerium 6 0 metal
-59 Pr praseodymium 6 0 metal
-60 Nd neodymium 6 0 metal
-61 Pm promethium 6 0 metal
-62 Sm samarium 6 0 metal
-63 Eu europium 6 0 metal
-64 Gd gadolinium 6 0 metal
-65 Tb terbium 6 0 metal
-66 Dy dysprosium 6 0 metal
-67 Ho holmium 6 0 metal
-68 Er erbium 6 0 metal
-69 Tm thulium 6 0 metal
-70 Yb ytterbium 6 0 metal
-71 Lu lutetium 6 0 metal
-72 Hf Hafnium 6 4 metal
-73 Ta tantalum 6 5 metal
-74 W tungsten 6 6 metal
-75 Re rhenium 6 7 metal
-76 Os osmium 6 8 metal
-77 Ir iridium 6 9 metal
-78 Pt platinum 6 10 metal
-79 Au gold 6 11 metal
-80 Hg mercury 6 12 metal 1+ 2+
-81 Tl thallium 6 13 metal
-82 Pb lead 6 14 metal 2+ 4+
-83 Bi bismuth 6 15 metal
-84 Po polonium 6 16 metal
-85 At astatine 6 17 metal
-86 Rn radon 6 18 1
-87 Fr francium 7 1 metal 1+
-88 Ra radium 7 2 0 2+
-89 Ac actinium 7 0 metal
-90 Th thorium 7 0 metal
-91 Pa protactinium 7 0 metal
-92 U uranium 7 0 metal
-93 Np neptunium 7 0 metal
-94 Pu plutonium 7 0 metal
-95 Am americium 7 0 metal
-96 Cm curium 7 0 metal
-97 Bk berkelium 7 0 metal
-98 Cf californium 7 0 metal
-99 Es einsteinium 7 0 metal
-100 Fm fermium 7 0 metal
-101 Md mendelevium 7 0 metal
-102 No nobelium 7 0 metal
-103 Lr lawrencium 7 0 metal
-104 Rf rutherfordium 7 4 metal
-105 Db dubnium 7 5 metal
-106 Sg seaborgium 7 6 metal
-107 Bh bohrium 7 7 metal
-108 Hs hassium 7 8 metal
-109 Mt meitnerium 7 9 metal
-110 Ds darmstadtium 7 10 metal
-111 Rg roentgenium 7 11 metal
-112 Cn copernicium 7 12 metal
-113 Nh nihonium 7 13 metal
-114 Fl flerovium 7 14 metal
-115 Mc moscovium 7 15 metal
-116 Lv livermorium 7 16 metal
-117 Ts tennessine 7 17 metal
-118 Og oganesson 7 18 metal
+; atomic #, symbol, name, name root, period #, group #, nonmetal | metal, charges*
+1 H hydrogen hyd 1 1 metal 1+
+2 He helium x 1 18 nonmetal 
+3 Li lithium x 2 1 metal 1+
+4 Be beryllium x 2 2 metal 2+
+5 B boron bor 2 13 metal 4-
+6 C carbon carb 2 14 nonmetal 4-
+7 N nitrogen nitr 2 15 nonmetal 3-
+8 O oxygen ox 2 16 nonmetal 2-
+9 F fluorine fluor 2 17 nonmetal 1-
+10 Ne neon x 2 18 nonmetal
+11 Na sodium x 3 1 metal 1+
+12 Mg magnesium x 3 2 metal 2+
+13 Al aluminum x 3 13 metal 3+
+14 Si silicon silic 3 14 metal 3+
+15 P phosphorus phosph 3 15 nonmetal 3-
+16 S sulfur sulf 3 16 nonmetal 2-
+17 Cl chlorine chlor 3 17 nonmetal 1-
+18 Ar argon x 3 18 nonmetal
+19 K potassium x 4 1 metal 1+
+20 Ca calcium x 4 2 metal 2+
+21 Sc scandium x 4 3 metal
+22 Ti titanium x 4 4 metal
+23 V vanadium x 4 5 metal
+24 Cr chromium chrom 4 6 metal 2+ 3+ 6+
+25 Mn manganese mangan 4 7 metal 2+ 4+ 7+
+26 Fe iron x 4 8 metal 3+
+27 Co cobalt x 4 9 metal 2+ 3+
+28 Ni nickel x 4 10 metal 2+ 3+
+29 Cu copper x 4 11 metal 1+ 2+
+30 Zn zinc x 4 12 metal 2+
+31 Ga gallium x 4 13 metal
+32 Ge germanium x 4 14 metal
+33 As arsenic x 4 15 metal
+34 Se selenium x 4 16 1 2-
+35 Br bromine brom 4 17 1 1-
+36 Kr krypton x 4 18 1
+37 Rb rubidium x 5 1 metal 1+
+38 Sr strontium x 5 2 metal 2+
+39 Y yttrium x 5 3 metal
+40 Zr zirconium x 5 4 metal
+41 Nb niobium x 5 5 metal
+42 Mo molybdenum x 5 6 metal
+43 Tc technetium x 5 7 metal
+44 Ru ruthenium x 5 8 metal
+45 Rh rhodium x 5 9 metal
+46 Pd palladium x 5 10 metal
+47 Ag silver x 5 11 metal 1+
+48 Cd cadmium x 5 12 metal 2+
+49 In indium x 5 13 metal
+50 Sn tin x 5 14 metal 2+ 4+
+51 Sb antimony x 5 15 metal
+52 Te tellurium x 5 16 metal
+53 I iodine iod 5 17 1 1-
+54 Xe xenon x 5 18 1
+55 Cs caesium x 6 1 metal 1+
+56 Ba barium x 6 2 metal 2+
+57 La lanthanum x 6 3 metal
+58 Ce cerium x 6 0 metal
+59 Pr praseodymium x 6 0 metal
+60 Nd neodymium x 6 0 metal
+61 Pm promethium x 6 0 metal
+62 Sm samarium x 6 0 metal
+63 Eu europium x 6 0 metal
+64 Gd gadolinium x 6 0 metal
+65 Tb terbium x 6 0 metal
+66 Dy dysprosium x 6 0 metal
+67 Ho holmium x 6 0 metal
+68 Er erbium x 6 0 metal
+69 Tm thulium x 6 0 metal
+70 Yb ytterbium x 6 0 metal
+71 Lu lutetium x 6 0 metal
+72 Hf hafnium x 6 4 metal
+73 Ta tantalum x 6 5 metal
+74 W tungsten x 6 6 metal
+75 Re rhenium x 6 7 metal
+76 Os osmium x 6 8 metal
+77 Ir iridium x 6 9 metal
+78 Pt platinum x 6 10 metal
+79 Au gold x 6 11 metal
+80 Hg mercury x 6 12 metal 1+ 2+
+81 Tl thallium x 6 13 metal
+82 Pb lead x 6 14 metal 2+ 4+
+83 Bi bismuth x 6 15 metal
+84 Po polonium x 6 16 metal
+85 At astatine x 6 17 metal
+86 Rn radon x 6 18 1
+87 Fr francium x 7 1 metal 1+
+88 Ra radium x 7 2 0 2+
+89 Ac actinium x 7 0 metal
+90 Th thorium x 7 0 metal
+91 Pa protactinium x 7 0 metal
+92 U uranium ur 7 0 metal
+93 Np neptunium x 7 0 metal
+94 Pu plutonium x 7 0 metal
+95 Am americium x 7 0 metal
+96 Cm curium x 7 0 metal
+97 Bk berkelium x 7 0 metal
+98 Cf californium x 7 0 metal
+99 Es einsteinium x 7 0 metal
+100 Fm fermium x 7 0 metal
+101 Md mendelevium x 7 0 metal
+102 No nobelium x 7 0 metal
+103 Lr lawrencium x 7 0 metal
+104 Rf rutherfordium x 7 4 metal
+105 Db dubnium x 7 5 metal
+106 Sg seaborgium x 7 6 metal
+107 Bh bohrium x 7 7 metal
+108 Hs hassium x 7 8 metal
+109 Mt meitnerium x 7 9 metal
+110 Ds darmstadtium x 7 10 metal
+111 Rg roentgenium x 7 11 metal
+112 Cn copernicium x 7 12 metal
+113 Nh nihonium x 7 13 metal
+114 Fl flerovium x 7 14 metal
+115 Mc moscovium x 7 15 metal
+116 Lv livermorium x 7 16 metal
+117 Ts tennessine x 7 17 metal
+118 Og oganesson x 7 18 metal

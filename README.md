@@ -27,10 +27,10 @@ This reloads the data in the text files with elements and compound data into the
 
 The libary uses a few .txt files where the chemical information is stored (notice how there isn't one big file that just maps chemical formulas to names, the program actually DOES something).
 
-- [compounds.txt]()
-- [exceptions.txt]()
-- [elements.txt]()
-- [diatomic elements.txt]()
+- [compounds.txt](https://github.com/ihalseide/chemical-names/blob/master/compounds.txt)
+- [exceptions.txt](https://github.com/ihalseide/chemical-names/blob/master/exceptions.txt)
+- [elements.txt](https://github.com/ihalseide/chemical-names/blob/master/elements.txt)
+- diatomic elements.txt
 
 You should probably only mess with [compounds.txt]() and [exceptions.txt]() unless some new elements are discovered or something.
 ## Naming conventions used

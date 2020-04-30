@@ -1,0 +1,8 @@
+H
+N
+O
+F
+Cl
+Br
+I
+At
