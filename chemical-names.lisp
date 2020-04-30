@@ -111,7 +111,10 @@
 	:test #'string=
 	:key (lambda (entry) (getf entry :formula))))
 
-(defun name-formula (formula)
+(defun name->formula (name)
+  (error "Not implemented yet."))
+
+(defun formula->name (formula)
   (cond
     ;; Input formula should be a string
     ((not (stringp formula))

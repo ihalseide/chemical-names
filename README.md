@@ -1,14 +1,6 @@
-# Project `chemical-names`
+# Project chemical-names
 
-Project to take chemical formulas and convert them to the right chemical names, written in Common Lisp.
-
-Examples:
-- H2O = water
-- O2 = dioxygen
-- HCl = hydrochloric acid
-- CO2 = carbon dioxide
-- SF6 = sulfur hexafluoride
-- HClO = hypochlorous acid
+This is the source code for a small library for naming chemicals given their formulas and vice-versa. Written in Common Lisp by Izak Halseide. See the LICENSE.txt file for the license.
 
 Github repository: https://github.com/ihalseide/chemical-names
 
@@ -16,23 +8,36 @@ Github repository: https://github.com/ihalseide/chemical-names
 The functions for this library are packaged in `com.div0.chemical-names`.
 The exposed functions are:
 
-##### name-formula `(name-formula formula)`
+##### name->formula 
+`(name->formula name)`
+This takes a chemical name and generates the correct formula as a string.
+Not implemented yet.
+
+##### formula->name
+`(formula->name formula)`
 This takes a formula string and returns the resulting name as a string.
-- Ex: `(name-formula "H2O") => "water"`
+- Ex: `(formula->name "H2O") => "water"`
 
-##### load-chem-data `(load-chem-data)`
-This reloads the data in the text files with elements and compound data into the program for use by `name-formula`.
+##### load-chem-data 
+`(load-chem-data)`
+This reloads the data in the text files with elements and compound data into the program for naming compounds.
 
-## Configurable files
+See [packages.lisp](https://www.github.com/ihalseide/chemical-names/blob/master/packages.lisp) for more info.
+
+## Dependencies
+The `com.div0.macro-utils` package (https://www.github.com/ihalseide/macro-utils) is used for some macros in the source code.
+
+## Data files
 
 The libary uses a few .txt files where the chemical information is stored (notice how there isn't one big file that just maps chemical formulas to names, the program actually DOES something).
 
 - [compounds.txt](https://github.com/ihalseide/chemical-names/blob/master/compounds.txt)
 - [exceptions.txt](https://github.com/ihalseide/chemical-names/blob/master/exceptions.txt)
 - [elements.txt](https://github.com/ihalseide/chemical-names/blob/master/elements.txt)
-- diatomic elements.txt
+- [diatomic elements.txt](https://github.com/ihalseide/chemical-names/blob/master/diatomic%20elements.txt)
 
-You should probably only mess with [compounds.txt]() and [exceptions.txt]() unless some new elements are discovered or something.
+You should probably only mess with compounds.txt and exceptions.txt unless some new elements are discovered or something.
+
 ## Naming conventions used
 
 For this project, I used 3 different naming conventions, besides naming elements on their own. These 3 conventions are metal-nonmetal naming, nonmetal-nonmetal naming, and acid naming.
@@ -64,3 +69,5 @@ For this project, I used 3 different naming conventions, besides naming elements
     - N2O = dinitrogen monoxide
     
     The first 10 prefixes are: mono-, di-, tri-, tetra-, penta-, hexa-, hepta-, octa-, nona-, deca-.
+
+Although these naming rules can cover quite a few compounds, there are some exceptions... hence the [exceptions.txt] file. Take water for example: even though it starts with Hydrogen, it is not an acid, so it's not hydroxic acid. And you might have heard it called dihydrogen monoxide too, but the accepted chemical name for H2O is indeed just "water".
