@@ -1,3 +1,4 @@
+;; naming tests.lisp
 
 (in-package :com.div0.chemical-names.test)
 

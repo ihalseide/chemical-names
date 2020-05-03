@@ -1,3 +1,5 @@
+;;;; packages.lisp
+
 (in-package :cl-user)
 
 (defpackage :com.div0.chemical-names

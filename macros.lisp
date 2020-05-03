@@ -1,3 +1,5 @@
+;; macros.lisp
+
 (in-package :com.div0.chemical-names)
 
 (defun vector-pop-safe (vector sentinel)
