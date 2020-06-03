@@ -1,6 +1,6 @@
 # Project chemical-names
 
-This is the source code for a small library for naming chemicals given their formulas and vice-versa. Written in Common Lisp by Izak Halseide. See the LICENSE.txt file for the license.
+This is the source code for a small utility for naming chemicals given their formulas and vice-versa. Written in Common Lisp by Izak Halseide. See the LICENSE.txt file for the license.
 
 Github repository: https://github.com/ihalseide/chemical-names
 
@@ -8,35 +8,44 @@ Github repository: https://github.com/ihalseide/chemical-names
 The functions for this library are packaged in `com.div0.chemical-names`.
 The exposed functions are:
 
-##### name->formula 
-`(name->formula name)`
-This takes a chemical name and generates the correct formula as a string.
-Not implemented yet.
+### name->formula 
 
-##### formula->name
-`(formula->name formula)`
+`(name->formula <name>)`
+
+This takes a chemical name and generates the correct formula as a string.
+
+(Not implemented yet!)
+
+### formula->name
+
+`(formula->name <formula>)`
+
 This takes a formula string and returns the resulting name as a string.
+
 - Ex: `(formula->name "H2O") => "water"`
 
-##### load-chem-data 
+### load-chem-data 
+
 `(load-chem-data)`
+
 This reloads the data in the text files with elements and compound data into the program for naming compounds.
 
-See [packages.lisp](https://www.github.com/ihalseide/chemical-names/blob/master/packages.lisp) for more info.
+See the packages.lisp file for more info.
 
 ## Dependencies
+
 The `com.div0.macro-utils` package (https://www.github.com/ihalseide/macro-utils) is used for some macros in the source code.
 
 ## Data files
 
 The libary uses a few .txt files where the chemical information is stored (notice how there isn't one big file that just maps chemical formulas to names, the program actually DOES something).
 
-- [compounds.txt](https://github.com/ihalseide/chemical-names/blob/master/compounds.txt)
-- [exceptions.txt](https://github.com/ihalseide/chemical-names/blob/master/exceptions.txt)
-- [elements.txt](https://github.com/ihalseide/chemical-names/blob/master/elements.txt)
-- [diatomic elements.txt](https://github.com/ihalseide/chemical-names/blob/master/diatomic%20elements.txt)
+- compounds.txt
+- exceptions.txt
+- elements.txt
+- diatomic elements.txt
 
-You should probably only mess with compounds.txt and exceptions.txt unless some new elements are discovered or something.
+These files can be customized with additional elements, ions, and compounds or even fictional things.
 
 ## Naming conventions used
 
@@ -52,7 +61,7 @@ For this project, I used 3 different naming conventions, besides naming elements
 
 2. Acid naming
 	Acid naming is used when the cation of an ionic compound is H+. 
-	- Binary acids are named as "hydro___ic acid", where the blank is filled by the root name of the anion. 
+	- Binary acids are named as "hydro\_\_\_ic acid", where the blank is filled by the root name of the anion. 
 	    For example: 
         - HCl = hydro**chlor**ic acid since "chlor" is the root for "chlorine"
     - Ternary acids are named as either "\_\_\_ic acid" or "\_\_\_ous acid" depending on whether the anion is an "ate" ion or an "ite" ion, each filled in with the root name of the anion.
@@ -71,3 +80,4 @@ For this project, I used 3 different naming conventions, besides naming elements
     The first 10 prefixes are: mono-, di-, tri-, tetra-, penta-, hexa-, hepta-, octa-, nona-, deca-.
 
 Although these naming rules can cover quite a few compounds, there are some exceptions... hence the [exceptions.txt] file. Take water for example: even though it starts with Hydrogen, it is not an acid, so it's not hydroxic acid. And you might have heard it called dihydrogen monoxide too, but the accepted chemical name for H2O is indeed just "water".
+
