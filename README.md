@@ -81,3 +81,8 @@ For this project, I used 3 different naming conventions, besides naming elements
 
 Although these naming rules can cover quite a few compounds, there are some exceptions... hence the [exceptions.txt] file. Take water for example: even though it starts with Hydrogen, it is not an acid, so it's not hydroxic acid. And you might have heard it called dihydrogen monoxide too, but the accepted chemical name for H2O is indeed just "water".
 
+## Todo list
+
+- Implement the name->formula function
+- Allow for the use of parantheses in formulas
+- Allow for alternate forms of some compounds (like how acetate is written different ways)
