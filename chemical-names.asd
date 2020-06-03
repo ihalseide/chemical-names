@@ -9,4 +9,4 @@
   :depends-on ("macro-utils" "unit-test")
   :components ((:file "packages")
                (:file "macros" :depends-on ("packages"))
-               (:file "chemical-names" :depends-on ("macros"))))
+               (:file "chemical-names" :depends-on ("packages" "macros"))))

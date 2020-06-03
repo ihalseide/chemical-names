@@ -1,6 +1,5 @@
 ;;;; chemical-names.lisp
 
-
 (in-package #:com.div0.chemical-names)
 
 (defparameter *elements* nil
@@ -13,6 +12,7 @@
   "Naming exceptions data that should be read from [exceptions.txt]")
 
 (defun make-element-def (atomic-number symbol name name-root period group is-metal charges)
+  "Create and return the known chemical information about an element."
   (list :atomic-number atomic-number
 	:symbol symbol
 	:name name
@@ -23,12 +23,14 @@
 	:charges charges))
 
 (defun make-compound-def (symbol name name-root charge)
+  "Create and return the known chemical info about a compound."
   (list :symbol symbol
 	:name name
 	:name-root name-root
 	:charge charge))
 
 (defun make-name-def (formula name)
+  "Create and return a mapping between a known formula and name of that formula."
   (list :formula formula
 	:name name))
 
@@ -37,6 +39,7 @@
 	:count count))
 
 (defun parse-charge-list (seq)
+  "Return a list of charges parsed from a sequence."
   (map 'list #'parse-charge seq))
 
 (defun parse-compound-def (string)
@@ -72,6 +75,7 @@
 		      (parse-charge-list charges))))
 
 (defun element-metal-p (element)
+  "Tell if an element is a metal."
   (getf element :is-metal))
 
 (defun read-while (test &key (stream *standard-input*) (limit nil))
@@ -86,6 +90,7 @@
 	do (write-char (read-char stream) out))))
 
 (defun whitespace-char-p (char)
+  "Test if a character is whitespace, which is defined as being a space or a non-graphic character."
   (or (char= #\Space char)
       (not (graphic-char-p char))))
 
@@ -106,7 +111,8 @@
 	   (find char split-chars)))
     (split-string string #'do-split)))
 
-(defun exception-p (formula)
+(defun is-exception (formula)
+  "Find out if a formula matches a certain chemical exception."
   (find formula *exceptions*
 	:test #'string=
 	:key (lambda (entry) (getf entry :formula))))
@@ -121,8 +127,8 @@
      (error "Formula `~S` must be a string." formula))
     
     ;; Detect naming exceptions from the exceptions.txt file
-    ((exception-p formula)
-     (getf (exception-p formula) :name))
+    ((is-exception formula)
+     (getf (is-exception formula) :name))
     
     ;; Single elements or compounds get named their names
     ((= 1 (length (read-compounds formula)))
@@ -144,6 +150,7 @@
 	    (name-nonmetal-nonmetal formula))))))))
 
 (defun name-metal-nonmetal (formula)
+  "Name a compound that is has a metal and a nonmetal, like NaCl."
   (let ((ions (read-compounds formula)))
     (if (= 2 (length ions))
 	(let ((cation (name-compound (first ions)))
@@ -168,6 +175,7 @@
 					 :is-last last)))))
 
 (defun number->prefix (number)
+  "Convert a number to the prefix used for it in chemical naming."
   (ecase number
     (1 "mono")
     (2 "di")
@@ -181,6 +189,7 @@
     (10 "deca")))
 
 (defun vowel-char-p (char)
+  "Tell if a character is a vowel."
   (or (char-equal #\a char)
       (char-equal #\e char)
       (char-equal #\i char)
@@ -188,6 +197,7 @@
       (char-equal #\u char)))
 
 (defun prefix-element (element number &key (is-first nil) (is-last nil))
+  "Name an element with a prefix based on its abundance and on knowing where it is in the chemical name."
   ;; Detect the "first element exception"
   (when (and is-first (= 1 number))
     (return-from prefix-element (getf element :name)))
@@ -202,11 +212,13 @@
 	(concatenate 'string prefix name))))
     
 (defun compound-ending (compound)
+  "Return the compound ending for a compound."
   (ecase (anion-compound-type compound)
     (:ate "ic")
     (:ite "ous")))
 
 (defun anion-compound-type (compound)
+  "Return the compound ending type (-ite or -ate) for a compound."
   (let* ((name (getf compound :name))
 	(last-3 (subseq name (- (length name) 3))))
     (cond
@@ -215,6 +227,7 @@
       (t nil))))
 
 (defun name-acid (acid-formula)
+  "Rules for naming an acidic compound, which is anything that starts with H."
   (let* ((compounds (read-compounds acid-formula))
 	 (anion (second compounds)))
     (if (get-element-by-symbol (getf anion :symbol))
@@ -232,11 +245,13 @@
        collect (funcall func line))))
 
 (defun load-chem-data ()
+  "This loads all of the chemical data stored in files on disk. This must be loaded before any chemical naming will work."
   (setf *elements* (map-lines "elements.txt" #'parse-element-def))
   (setf *compounds* (map-lines "compounds.txt" #'parse-compound-def))
   (setf *exceptions* (map-lines "exceptions.txt" #'parse-name-def)))
 
 (defun newline-char-p (char)
+  "Return whether a character represents a newline at all."
   (or (char= #\Newline char)
       (char= #\Linefeed char)
       (char= #\Return char)))
@@ -334,8 +349,5 @@
 	   (setf index an-index))
 	  (t (incf index)))))))
 
-;; Load the resource files that have element data etc...
+;; Automatically load the resource files that have element data etc...
 (load-chem-data)
-
-
-;;;; end of chemical-names.lisp
