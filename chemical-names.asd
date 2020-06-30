@@ -2,7 +2,7 @@
 
 (asdf:defsystem "chemical-names"
   :description "Convert between chemical formulas and chemical names."
-  :author "Izak Halseide <halseide.izak@gmail.com>"
+  :author "Izak Halseide"
   :license  "MIT License"
   :version "0.0.1"
   :serial t
