@@ -13,7 +13,8 @@
 (defparameter *compounds* nil
   "A list of the chemical compounds.")
 
-(defun make-element (atomic-number symbol name name-root period group is-metal &optional charges diatomic)
+(defun make-element (atomic-number symbol name name-root
+                                   period group is-metal &optional charges diatomic)
   "Create information for an element"
   (list :atomic-number atomic-number
         :symbol symbol
@@ -39,19 +40,19 @@
       (list obj)))
 
 (defun convert-charges (charges)
-  "Convert the raw data symbols of CHARGES, which are like '1+' or '(2+ 3+)' into lists of integers."
+  "Convert the raw data symbols of `charges`, which are like '1+' or '(2+ 3+)' into lists of integers."
   (labels ((as-string (symbol-or-number)
              ;; Convert an object that is either a number or a symbol into
              ;; a string.
              (if (numberp symbol-or-number)
                  (string (digit-char symbol-or-number))
                  (symbol-name symbol-or-number)))
-         (convert-charge (item)
-           (let* ((name (coerce (as-string item) 'list))
-                  (number (butlast name)) ; Number is all chars except last
-                  (charge (last name))) ; Charge is last char
-             ;; Put the charge in front and parse as integer
-             (parse-integer (coerce (append charge number) 'string)))))
+           (convert-charge (item)
+             (let* ((name (coerce (as-string item) 'list))
+                    (number (butlast name)) ; Number is all chars except last
+                    (charge (last name))) ; Charge is last char
+               ;; Put the charge in front and parse as integer
+               (parse-integer (coerce (append charge number) 'string)))))
     ;; Convert each charge, but charges may be a single element, which
     ;; is why it is put through `as-list`
     (mapcar #'convert-charge (as-list charges))))
@@ -63,11 +64,11 @@
         (read-char stream))))
 
 (defun read-element (&optional (stream *standard-input*))
-  "Read an element from a `stream`."
+  "Read an element (symbol) from a `stream`."
   (let* ((first-char (read-char-if #'upper-case-p stream))
          (second-char (read-char-if #'lower-case-p stream)))
-    (coerce (remove-if #'null (list first-char second-char))
-            'string)))
+    (intern (coerce (remove-if #'null (list first-char second-char))
+                    'string))))
 
 (defun read-element-number (&optional (stream *standard-input*))
   "Get a list of an element and the number following it."
@@ -76,12 +77,17 @@
             ;; If no number is given, the default is 1
             1)))
 
+(defun read-integer (&optional (stream *standard-input*))
+  (parse-integer (coerce (loop for char = (read-char stream nil nil)
+                               while (and char (digit-char-p char)) collect char)
+                         'string)))
+
 ;; TODO: implement
 (defun name->formula (name-string)
   "Convert a chemical name to a formula."
   (error "Sorry, not implemented yet."))
 
-(defun element->name (element &optional amount add-ending-p)
+(defun element->name (element &key amount add-ending-p)
   "Name an element with a prefix based on its abundance and on knowing where it is in the chemical name. Returns a list of symbols"
   (let ((prefix (when amount (number->prefix amount)))
         ;; When adding an ending, use the name root instead of the full name
@@ -132,19 +138,33 @@
 
 (defun name-nonmetal-nonmetal (formula elements)
   "Name a compound that is full of nonmetals, like CO2 (carbon dioxide)."
-  (let* ((elements (sort (with-input-from-string (in formula) (read-elements in))
-                         #'<
-                         :key #'(lambda (x) (getf x :count))))
-         (end (1- (length elements))))
-    (format nil "~{~a~^ ~}"
-            (loop for pair in elements
-                  for first = t then nil
-                  for index = 0 then (1+ index)
-                  for last = nil then (= end index)
-                  collect (prefix-element (getf pair :element)
-                                          (getf pair :count)
-                                          :is-first first
-                                          :is-last last)))))
+  (let ((last (1- (length elements))))
+    (flet ((name (element-spec position)
+             (let* ((element-list (as-list element-spec))
+                    ;; The element symbol is first
+                    (element (car element-list))
+                    ;; The amount (if present) is second
+                    (real-amount (or (cadr element-list)
+                                     1))
+                    ;; Add an ending to the last element in the elements
+                    (add-ending-p (= last position))
+                    ;; Remove mono- prefix from first element in the elements
+                    (amount (unless (and (= 0 position) (= 1 real-amount))
+                              real-amount)))
+               ;; Use this general function now, using the amount
+               ;; that it needs to know, because a null amount signals that
+               ;; it should'nt add a prefix.
+               (element->name element
+                              :amount amount 
+                              :add-ending-p add-ending-p))))
+      ;; This next line uses `make-index-list` because it is the only
+      ;; way I can think of to keep track of the index and pass it to
+      ;; the name function:
+      (mapcar #'name elements (make-index-list elements)))))
+
+(defun make-index-list (sequence)
+  (loop for a from 0 upto (1- (length sequence))
+        collect a))
 
 (defun number->prefix (number)
   "Convert a number to the prefix used for it in chemical naming."
@@ -208,32 +228,6 @@
   (or (char= #\Newline char)
       (char= #\Linefeed char)
       (char= #\Return char)))
-
-(defun compound-root-name (compound)
-  (or (getf compound :name-root)
-      (getf compound :name)))
-
-(defun name-compound (ion &optional ending)
-  (let ((name (getf ion :name)))
-    (if ending
-        (concatenate 'string (compound-root-name ion) ending)
-        name)))
-
-(defun clamp-value (value min-value max-value)
-  "Keep a number between a min and a max."
-  (max (min value max-value)
-       min-value))
-
-(defun find-formula-in (formula list)
-  "Return values of the element or symbol and then the length of it."
-  ;; TODO: remove use of this macro
-  (do-shrinking-string (partial-formula formula)
-     with result
-     do (setf result (find partial-formula list
-                           :test #'string=
-                           :key (lambda (x) (getf x :symbol))))
-     until result
-     finally (return (values result (length partial-formula)))))
 
 (defun get-element-or-compound (symbol)
   "Get a compound or element named by the SYMBOL, putting compounds first because their names are longer, which is useful for the context this function would be called in because parsing of formulas is greedy."
