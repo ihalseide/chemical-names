@@ -1,7 +1,6 @@
-; symbol, name, name root, charge
-H3O hydronium x 1+
+H3O hydronium nil 1+
 NH4 ammonium ammon 1+
-OH hydroxide x 1-
+OH hydroxide nil 1-
 NO3 nitrate nitr 1-
 NO2 nitrite nitr 1-
 CO3 carbonate carbon 2-
@@ -12,13 +11,16 @@ S2O3 thiosulfate thiosulf 2-
 SO4 sulfate sulf 2-
 SO3 sulfite sulf 2-
 CN cyanide cyan 1-
-ClO4 perchlorate x 1-
+ClO4 perchlorate nil 1-
 ClO3 chlorate chlor 1-
 ClO2 chlorite chlor 1-
-ClO1 hypochlorite x 1-
+ClO1 hypochlorite nil 1-
 PO4 phosphate phosphor 3-
 PO3 phosphite phosph 3-
 CH3COO acetate acet 1-
 MnO4 permanganate permagan 1-
 SiO3 silicate silic 2-
 IO3 iodate iod 1-
+H2O water
+O3 ozone
+HCN hydrogen-cyanide

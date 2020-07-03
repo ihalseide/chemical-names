@@ -1,216 +1,163 @@
 ;;;; chemical-names.lisp
 
-(in-package #:com.div0.chemical-names)
+(in-package :com.div0.chemical-names)
+
+;; The first element is nil for robustness reasons
+(defparameter *numeric-prefixes*
+  '(nil mono di tri tetra penta hexa septa octa nona deca)
+  "A few prefixes for elements.")
 
 (defparameter *elements* nil
-  "Elements data that should be read from [elements.txt].")
+  "A list of the chemical elements on the periodic table.")
 
 (defparameter *compounds* nil
-  "Compounds data that should be read from [compounds.txt].")
+  "A list of the chemical compounds.")
 
-(defparameter *exceptions* nil
-  "Naming exceptions data that should be read from [exceptions.txt]")
-
-(defun make-element-def (atomic-number symbol name name-root period group is-metal charges)
-  "Create and return the known chemical information about an element."
+(defun make-element (atomic-number symbol name name-root period group is-metal &optional charges diatomic)
+  "Create information for an element"
   (list :atomic-number atomic-number
-	:symbol symbol
-	:name name
+        :symbol symbol
+        :name name
         :name-root name-root
-	:period period
-	:group group
-	:is-metal is-metal
-	:charges charges))
+        :period period
+        :group group
+        :is-metal is-metal
+        :charges (convert-charges charges)
+        :diatomic diatomic))
 
-(defun make-compound-def (symbol name name-root charge)
-  "Create and return the known chemical info about a compound."
+(defun make-compound (symbol name &optional name-root (charge 0))
+  "Create information for a compound"
   (list :symbol symbol
-	:name name
-	:name-root name-root
-	:charge charge))
+        :name name
+        :name-root name-root
+        :charge (convert-charges charge)))
 
-(defun make-name-def (formula name)
-  "Create and return a mapping between a known formula and name of that formula."
-  (list :formula formula
-	:name name))
+(defun as-list (obj)
+  "Make sure a given object is a list."
+  (if (listp obj)
+      obj
+      (list obj)))
 
-(defun make-compound (symbol count)
-  (list :symbol symbol
-	:count count))
+(defun convert-charges (charges)
+  "Convert the raw data symbols of CHARGES, which are like '1+' or '(2+ 3+)' into lists of integers."
+  (labels ((as-string (symbol-or-number)
+             ;; Convert an object that is either a number or a symbol into
+             ;; a string.
+             (if (numberp symbol-or-number)
+                 (string (digit-char symbol-or-number))
+                 (symbol-name symbol-or-number)))
+         (convert-charge (item)
+           (let* ((name (coerce (as-string item) 'list))
+                  (number (butlast name)) ; Number is all chars except last
+                  (charge (last name))) ; Charge is last char
+             ;; Put the charge in front and parse as integer
+             (parse-integer (coerce (append charge number) 'string)))))
+    ;; Convert each charge, but charges may be a single element, which
+    ;; is why it is put through `as-list`
+    (mapcar #'convert-charge (as-list charges))))
 
-(defun parse-charge-list (seq)
-  "Return a list of charges parsed from a sequence."
-  (map 'list #'parse-charge seq))
+(defun read-char-if (predicate &optional (stream *standard-input*))
+  "Read a character if it matches the given PREDICATE function from the STREAM."
+  (let ((peek (peek-char nil stream)))
+    (if (funcall predicate peek)
+        (read-char stream))))
 
-(defun parse-compound-def (string)
-  "Parse a line in a compounds file."
-  (destructuring-bind (symbol name name-root charge)
-      (split-string string)
-    (make-compound-def symbol
-		       name
-		       (unless (string-equal name-root "x") name-root)
-		       (parse-charge charge))))
+(defun read-element (&optional (stream *standard-input*))
+  "Read an element from a `stream`."
+  (let* ((first-char (read-char-if #'upper-case-p stream))
+         (second-char (read-char-if #'lower-case-p stream)))
+    (coerce (remove-if #'null (list first-char second-char))
+            'string)))
 
-(defun parse-charge (string)
-  "Turn a charge like ' 1+ ' into an int ( +1 )."
-  (with-input-from-string (in string)
-    (let ((value (parse-integer (read-while #'digit-char-p :stream in)))
-	  (sign (read-char in nil 'eof)))
-      (if (= value 0) 0
-	  (cond ((and (characterp sign) (char= sign #\+)) value)
-		((and (characterp sign) (char= sign #\-)) (- value))
-		(t (error "Found ~S after charge magnitude instead of a sign." sign)))))))
+(defun read-element-number (&optional (stream *standard-input*))
+  "Get a list of an element and the number following it."
+  (list (read-element stream)
+        (or (read-integer stream)
+            ;; If no number is given, the default is 1
+            1)))
 
-(defun parse-element-def (string)
-  "Parse a line in a elements file."
-  (destructuring-bind (atomic-number symbol name name-root period  group metal &rest charges)
-      (split-string string)
-    (make-element-def (parse-integer atomic-number)
-		      symbol
-		      name
-                      name-root
-		      (parse-integer period)
-		      (parse-integer group)
-		      (string-equal metal "metal")
-		      (parse-charge-list charges))))
+;; TODO: implement
+(defun name->formula (name-string)
+  "Convert a chemical name to a formula."
+  (error "Sorry, not implemented yet."))
 
-(defun element-metal-p (element)
-  "Tell if an element is a metal."
-  (getf element :is-metal))
+(defun element->name (element &optional amount add-ending-p)
+  "Name an element with a prefix based on its abundance and on knowing where it is in the chemical name. Returns a list of symbols"
+  (let ((prefix (when amount (number->prefix amount)))
+        ;; When adding an ending, use the name root instead of the full name
+        (name (get-compound-attribute 'element element
+                                      (if add-ending-p
+                                          :name-root
+                                          :name)))
+        (ending (when add-ending-p 'IDE)))
+    ;; Remove any nils from the result
+    (remove-if #'null (list prefix name ending))))
 
-(defun read-while (test &key (stream *standard-input*) (limit nil))
-  "Read characters from a stream as long as the test passes on the characters or the length is within the limit given."
-   (with-output-to-string (out)
-     (loop for c = (peek-char nil stream nil nil)
-	for iterations = 0 then (1+ iterations)
-	while (and c
-		   (funcall test c)
-		   (or (null limit)
-		       (< iterations limit)))
-	do (write-char (read-char stream) out))))
+(defun known-compound->name (compound)
+  "Name a compound, fairly simple."
+  (get-compound-attribute 'compound compound :name))
 
-(defun whitespace-char-p (char)
-  "Test if a character is whitespace, which is defined as being a space or a non-graphic character."
-  (or (char= #\Space char)
-      (not (graphic-char-p char))))
+(defun formula->name (formula-string)
+  ;; Input formula should be a string
+  (unless (stringp formula)
+    (error "Formula `~S` must be a string." formula))
+  (with-input-from-string (in formula-string)
+    (let ((formula (read-formula in))
+          (elements (read-elements in)))
+      (cond
+        ((eq 'h (first elements))
+         ;; Acid naming because H is first
+         (name-acid formula elements))
+        (t
+         "Sorry, unknown.")))))
 
-(defun read-word (&optional (stream *standard-input*))
-  "Read a word delimited by WHITESPACE-CHAR-P."
-  (read-while (complement #'whitespace-char-p) :stream stream))
+(defun name-acid (formula elements)
+  "Rules for naming an acidic compound, which is anything that starts with H."
+  (let* ((compounds (read-compounds acid-formula))
+         (anion (second compounds)))
+    (if (get-element-by-symbol (getf anion :symbol))
+        ;; Binary Acid
+        (format nil "hydro~a acid" (name-compound anion "ic"))
+        ;; Ternary Acid
+        (format nil "~a acid" (name-compound anion (compound-ending anion))))))
 
-(defun split-string (string &optional (test #'whitespace-char-p))
-  "Split a string on characters that pass the given test."
-  (with-input-from-string (stream string)
-    (loop for subseq = (read-while (complement test) :stream stream)
-       when (plusp (length subseq)) collect subseq
-       until (zerop (length (read-while test :stream stream))))))
-
-(defun split-string-on (string &rest split-chars)
-  "Split a string on all of the characters given."
-  (flet ((do-split (char)
-	   (find char split-chars)))
-    (split-string string #'do-split)))
-
-(defun is-exception (formula)
-  "Find out if a formula matches a certain chemical exception."
-  (find formula *exceptions*
-	:test #'string=
-	:key (lambda (entry) (getf entry :formula))))
-
-(defun name->formula (name)
-  (error "Not implemented yet."))
-
-(defun formula->name (formula)
-  (cond
-    ;; Input formula should be a string
-    ((not (stringp formula))
-     (error "Formula `~S` must be a string." formula))
-    
-    ;; Detect naming exceptions from the exceptions.txt file
-    ((is-exception formula)
-     (getf (is-exception formula) :name))
-    
-    ;; Single elements or compounds get named their names
-    ((= 1 (length (read-compounds formula)))
-     (getf (read-compound-at formula 0) :name))
-
-    ;; Now name depending on what is in the formula
-    (t
-     (with-input-from-string (in formula)
-       (let ((first-element (getf (read-element in) :element)))
-	 (cond
-	   ;; Acid naming if starts with H
-	   ((string= "H" (getf first-element :symbol))
-	    (name-acid formula))
-	   ;; Metal-nonmetal naming if starts with metal
-	   ((element-metal-p first-element)
-	    (name-metal-nonmetal formula))
-	   ;; Nonmetal-nonmetal naming otherwise
-	   (t
-	    (name-nonmetal-nonmetal formula))))))))
-
-(defun name-metal-nonmetal (formula)
+(defun name-metal-nonmetal (formula elements)
   "Name a compound that is has a metal and a nonmetal, like NaCl."
   (let ((ions (read-compounds formula)))
     (if (= 2 (length ions))
-	(let ((cation (name-compound (first ions)))
-	      (anion (name-compound (second ions) "ide")))
-	  (format nil "~a ~a" cation anion))
-	(format nil "~{~a~^ ~}" (map 'list #'name-compound ions)))))
+        (let ((cation (name-compound (first ions)))
+              (anion (name-compound (second ions) "ide")))
+          (format nil "~a ~a" cation anion))
+        (format nil "~{~a~^ ~}" (map 'list #'name-compound ions)))))
 
-(defun name-nonmetal-nonmetal (formula)
+(defun name-nonmetal-nonmetal (formula elements)
   "Name a compound that is full of nonmetals, like CO2 (carbon dioxide)."
   (let* ((elements (sort (with-input-from-string (in formula) (read-elements in))
-			 #'<
-			 :key #'(lambda (x) (getf x :count))))
-	   (end (1- (length elements))))
-      (format nil "~{~a~^ ~}"
-	      (loop for pair in elements
-		 for first = t then nil
-		 for index = 0 then (1+ index)
-		 for last = nil then (= end index)
-		 collect (prefix-element (getf pair :element)
-					 (getf pair :count)
-					 :is-first first
-					 :is-last last)))))
+                         #'<
+                         :key #'(lambda (x) (getf x :count))))
+         (end (1- (length elements))))
+    (format nil "~{~a~^ ~}"
+            (loop for pair in elements
+                  for first = t then nil
+                  for index = 0 then (1+ index)
+                  for last = nil then (= end index)
+                  collect (prefix-element (getf pair :element)
+                                          (getf pair :count)
+                                          :is-first first
+                                          :is-last last)))))
 
 (defun number->prefix (number)
   "Convert a number to the prefix used for it in chemical naming."
-  (ecase number
-    (1 "mono")
-    (2 "di")
-    (3 "tri")
-    (4 "tetra")
-    (5 "penta")
-    (6 "hexa")
-    (7 "hepta")
-    (8 "octa")
-    (9 "nona")
-    (10 "deca")))
+  (when number
+    ;; No need to subract 1 from the index because the first element is nil
+    ;; NOTE: If the number is bigger than expected, the result is nil also.
+    (nth number *numeric-prefixes*)))
 
 (defun vowel-char-p (char)
   "Tell if a character is a vowel."
-  (or (char-equal #\a char)
-      (char-equal #\e char)
-      (char-equal #\i char)
-      (char-equal #\o char)
-      (char-equal #\u char)))
+  (member (char-downcase char)
+          (list #\a #\e #\i #\o #\u)))
 
-(defun prefix-element (element number &key (is-first nil) (is-last nil))
-  "Name an element with a prefix based on its abundance and on knowing where it is in the chemical name."
-  ;; Detect the "first element exception"
-  (when (and is-first (= 1 number))
-    (return-from prefix-element (getf element :name)))
-  ;; Otherwise prefix away!
-  (let ((name (if is-last (name-compound element "ide") (getf element :name))) ; Last element gets -ide ending
-	(prefix (number->prefix number)))
-    (if (and (vowel-char-p (elt name 0))
-	     (char/= #\i (elt prefix (1- (length prefix)))))
-	(concatenate 'string
-		     (subseq prefix 0 (1- (length prefix)))
-		     name)
-	(concatenate 'string prefix name))))
-    
 (defun compound-ending (compound)
   "Return the compound ending for a compound."
   (ecase (anion-compound-type compound)
@@ -220,49 +167,47 @@
 (defun anion-compound-type (compound)
   "Return the compound ending type (-ite or -ate) for a compound."
   (let* ((name (getf compound :name))
-	(last-3 (subseq name (- (length name) 3))))
+         (last-3 (subseq name (- (length name) 3))))
     (cond
       ((string-equal "ate" last-3) :ate)
       ((string-equal "ite" last-3) :ite)
       (t nil))))
 
-(defun name-acid (acid-formula)
-  "Rules for naming an acidic compound, which is anything that starts with H."
-  (let* ((compounds (read-compounds acid-formula))
-	 (anion (second compounds)))
-    (if (get-element-by-symbol (getf anion :symbol))
-	;; Binary Acid
-	(format nil "hydro~a acid" (name-compound anion "ic"))
-	;; Ternary Acid
-	(format nil "~a acid" (name-compound anion (compound-ending anion))))))
+(defun map-lines (func &optional (stream-in *standard-input*))
+  "Collect the result of calling a function on every line in a stream."
+  (loop for line = (read-line stream-in nil nil)
+        while line collect (funcall func line)))
 
-(defun map-lines (file func)
-  "Return a list of lines in a file with the function applied to each line."
-  (with-open-file (in file)
-    (loop for line = (read-line in nil)
-       while line
-       if (char/= #\; (elt line 0))
-       collect (funcall func line))))
+(defun read-one-liner (string)
+  "Read a line into a list."
+  (let ((*read-eval* nil)
+        (result-list nil)
+        (in (make-string-input-stream string)))
+    (loop
+      (handler-case (push (read in) result-list)
+        (end-of-file () (return (nreverse result-list)))))))
+
+(defun line-function (match-function)
+  "Return a function the applies the contents of a line to a function."
+  (lambda (line)
+    (apply match-function (read-one-liner line))))
 
 (defun load-chem-data ()
   "This loads all of the chemical data stored in files on disk. This must be loaded before any chemical naming will work."
-  (setf *elements* (map-lines "elements.txt" #'parse-element-def))
-  (setf *compounds* (map-lines "compounds.txt" #'parse-compound-def))
-  (setf *exceptions* (map-lines "exceptions.txt" #'parse-name-def)))
+  (with-open-file (in "elements.txt")
+    (setf *elements*
+          ;; Use a line function to call `make-element`
+          (map-lines (line-function #'make-element) in)))
+  (with-open-file (in "compounds.txt")
+    (setf *compounds*
+          ;; Use a line function to call `make-compound`
+          (map-lines (line-function #'make-compound) in))))
 
 (defun newline-char-p (char)
   "Return whether a character represents a newline at all."
   (or (char= #\Newline char)
       (char= #\Linefeed char)
       (char= #\Return char)))
-
-(defun parse-name-def (string)
-  "Used to read exceptions from exceptions.txt. An exception is formated like [formula] [name]\n."
-  (with-input-from-string (in string)
-    (let ((formula (read-word in)))
-      (read-while #'whitespace-char-p :stream in)
-      (let ((name (remove-if #'newline-char-p (read-line in))))
-	(make-name-def formula name)))))
 
 (defun compound-root-name (compound)
   (or (getf compound :name-root)
@@ -271,83 +216,51 @@
 (defun name-compound (ion &optional ending)
   (let ((name (getf ion :name)))
     (if ending
-	(concatenate 'string (compound-root-name ion) ending)
-	name)))
+        (concatenate 'string (compound-root-name ion) ending)
+        name)))
 
 (defun clamp-value (value min-value max-value)
-  (max (min value max-value) min-value))
-
-(defun string->vector (string)
-  (let ((result (make-array (length string)
-			    :element-type 'character
-			    :fill-pointer 0)))
-    (loop for char across string
-       do (vector-push char result))
-    result))
+  "Keep a number between a min and a max."
+  (max (min value max-value)
+       min-value))
 
 (defun find-formula-in (formula list)
   "Return values of the element or symbol and then the length of it."
+  ;; TODO: remove use of this macro
   (do-shrinking-string (partial-formula formula)
      with result
      do (setf result (find partial-formula list
-			   :test #'string=
-			   :key (lambda (x) (getf x :symbol))))
+                           :test #'string=
+                           :key (lambda (x) (getf x :symbol))))
      until result
      finally (return (values result (length partial-formula)))))
 
-(defun get-element-by-symbol (symbol)
-  (find symbol *elements* :key (lambda (x) (getf x :symbol)) :test #'string=))
+(defun get-element-or-compound (symbol)
+  "Get a compound or element named by the SYMBOL, putting compounds first because their names are longer, which is useful for the context this function would be called in because parsing of formulas is greedy."
+  (or (get-compound symbol)
+      (get-element symbol)))
 
-(defun read-integer (&optional (stream *standard-input*))
-  (read-while #'digit-char-p :stream stream))
+(defun get-compound-attribute (type symbol attribute)
+  "Get an `attribute` of an element or compound, where whether it is an element or compound is specified by `type`. If the requested attribute is `:name-root` and that value is nil, then the `:name` attribute is provided instead."
+  (flet ((get-it (attribute)
+           (ecase type
+             (element (getf (get-element symbol) attribute))
+             (compound (getf (get-compound symbol) attribute)))))
+    (if (equal attribute :name-root)
+        (or (get-it :name-root)
+          (get-it :name))
+        (get-it attribute))))
 
-(defun read-element (&optional (stream *standard-input*))
-  (let ((element (get-element-by-symbol
-		  (with-output-to-string (out)
-		    (write-string (read-while #'upper-case-p :stream stream :limit 1) out)
-		    (write-string (read-while #'lower-case-p :stream stream :limit 1) out))))
-	(count (or (parse-integer (read-integer stream) :junk-allowed t)
-		   1)))
-    (if element (list :element element :count count))))
+(defun get-element (symbol)
+  "Find an element with the `symbol`."
+  (find symbol *elements*
+        :key #'(lambda (element) (getf element :symbol))))
 
-(defun read-elements (&optional (stream *standard-input*))
-  (loop for element = (read-element stream)
-     while element
-     collecting element))
+(defun get-compound (symbol)
+  "Find an compound with the `symbol`."
+  (find symbol *compounds*
+        :key #'(lambda (compound) (getf compound :symbol))))
 
-(defun element-p (string)
-  (if (and (stringp string)
-	   (<= 1 (length string) 2))
-      (get-element-by-symbol string)))
-
-(defun read-compound-at (formula &optional (start 0))
-  "Read a compound object from a string and start on the number given for `start`. Returns the value of the element or compound found. (Secret values: element, next-index)"
-  (let ((formula (subseq formula start)))
-    ;; This is how to get `or` to work with the multiple values
-    (values-list
-     (or
-      (multiple-value-bind (compound offset)
-	  (find-formula-in formula *compounds*)
-	;; If compound is nil, then or will switch move on to searching
-	;; the elements.
-	(if compound
-	    (list compound (+ start (or offset 0))))) ; effectively return
-      (multiple-value-bind (element offset)
-	  (find-formula-in formula *elements*)
-	(list element (+ start (or offset 0))))))))   ; effectively return
-
-(defun read-compounds (formula)
-  (let ((length (length formula)))
-    (do ((compounds nil)
-	 (index 0))
-	((= index length) (nreverse compounds))
-      (multiple-value-bind (a-compound an-index)
-	  (read-compound-at formula index)
-	(cond
-	  (a-compound
-	   (push a-compound compounds)
-	   (setf index an-index))
-	  (t (incf index)))))))
-
-;; Automatically load the resource files that have element data etc...
+;; Load the resource files that have element data etc...
 (load-chem-data)
+
