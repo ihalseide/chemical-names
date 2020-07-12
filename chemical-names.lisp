@@ -105,7 +105,7 @@
 
 (defun formula->name (formula-string)
   ;; Input formula should be a string
-  (unless (stringp formula)
+  (unless (stringp formula-string)
     (error "Formula `~S` must be a string." formula))
   (with-input-from-string (in formula-string)
     (let ((formula (read-formula in))
@@ -119,7 +119,7 @@
 
 (defun name-acid (formula elements)
   "Rules for naming an acidic compound, which is anything that starts with H."
-  (let* ((compounds (read-compounds acid-formula))
+  (let* ((compounds (read-compounds formula))
          (anion (second compounds)))
     (if (get-element-by-symbol (getf anion :symbol))
         ;; Binary Acid
@@ -133,6 +133,7 @@
     (if (= 2 (length ions))
         (let ((cation (name-compound (first ions)))
               (anion (name-compound (second ions) "ide")))
+
           (format nil "~a ~a" cation anion))
         (format nil "~{~a~^ ~}" (map 'list #'name-compound ions)))))
 
