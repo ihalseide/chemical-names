@@ -20,3 +20,9 @@
 # Emacs weirdness
 *.*~
 *.swp
+
+# More lisp weirdness
+*.lisp\#
+
+# Dev file
+dev-load.lisp
