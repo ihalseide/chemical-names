@@ -24,38 +24,40 @@
   "Name a compound, fairly simple."
   (get-compound-attribute 'compound compound :name))
 
+(defun compare-elements (element-1 element-2)
+  (string< (symbol-name (car element-1))
+           (symbol-name (car element-2))))
+
 (defun formula->name (formula-string)
   ;; Input formula should be a string
   (unless (stringp formula-string)
     (error "Formula `~S` must be a string." formula))
   (with-input-from-string (in formula-string)
     (let* ((formula (read-formula in))
-          (elements (formula->elements formula)))
+           (elements (sort #'compare-elements (formula->elements formula))))
       (cond
         ((eq 'h (first elements))
          ;; Acid naming because H is first
-         (name-acid formula elements))
+         (acid->name formula elements))
+        ((has-metals? elements)
+         ;; Metal-nonmetal naming because there are metals
+         (metal-nonmetal->name formula elements))
         (t
-         "Sorry, unknown.")))))
+         ;; Nonmetal-nonmetal naming (default)
+         (nonmetal-nonmetal->name elements))))))
 
 (defun acid->name (formula elements)
-  "Rules for naming an acidic compound, which is anything that starts with H."
-  (let ((anion (second compounds)))
-    (if (get-element-by-symbol (getf anion :symbol))
-        ;; Binary Acid
-        (format nil "hydro~a acid" (name-compound anion "ic"))
-        ;; Ternary Acid
-        (format nil "~a acid" (name-compound anion (compound-ending anion))))))
+  "Rules for naming an acidic compound, which is (almoste) anything that starts with H."
+  (let ((anion (rest elements)))
+    (if (list? anion)
+        ;; It's a compound
+        (format nil "~a acid" anion)
+        ;; Else, element = ternary acid
+        (format nil "hydro~a acid" anion))))
 
 (defun metal-nonmetal->name (formula elements)
   "Name a compound that is has a metal and a nonmetal, like NaCl."
-  (let ((ions (read-compounds formula)))
-    (if (= 2 (length ions))
-        (let ((cation (name-compound (first ions)))
-              (anion (name-compound (second ions) "ide")))
-
-          (format nil "~a ~a" cation anion))
-        (format nil "~{~a~^ ~}" (map 'list #'name-compound ions)))))
+  (error "Sorry, not implemented yet."))
 
 (defun nonmetal-nonmetal->name (formula elements)
   "Name a compound that is full of nonmetals, like CO2 (carbon dioxide)."
@@ -76,7 +78,7 @@
                ;; that it needs to know, because a null amount signals that
                ;; it should'nt add a prefix.
                (element->name element
-                              :amount amount 
+                              :amount amount
                               :add-ending? add-ending?))))
       ;; This next line uses `make-index-list` because it is the only
       ;; way I can think of to keep track of the index and pass it to
@@ -144,4 +146,18 @@
                  (mapcar #'(lambda (el) (* el multiplier)) elements))
                seq)))
     (normalize-elements (flatten (mapcar #'apply-compound formula)))))
+
+(defun has-metals? (elements)
+  (any #'metal? elements))
+
+(defun element->symbol (element)
+  (if (cons? element)
+      (car element)
+      element))
+
+(defun metal? (element)
+  "Get if a element designator is a metal"
+  (get-compound-attribute 'element
+                          (element->symbol element)
+                          :metal?))
 

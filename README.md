@@ -60,9 +60,9 @@ For this project, I used 3 different naming conventions, besides naming elements
     - NaOH = sodium hydroxide
 
 2. Acid naming
-	Acid naming is used when the cation of an ionic compound is H+. 
-	- Binary acids are named as "hydro\_\_\_ic acid", where the blank is filled by the root name of the anion. 
-	    For example: 
+    Acid naming is used when the cation of an ionic compound is H+. 
+    - Binary acids are named as "hydro\_\_\_ic acid", where the blank is filled by the root name of the anion. 
+        For example: 
         - HCl = hydro**chlor**ic acid since "chlor" is the root for "chlorine"
     - Ternary acids are named as either "\_\_\_ic acid" or "\_\_\_ous acid" depending on whether the anion is an "ate" ion or an "ite" ion, each filled in with the root name of the anion.
         For example: 
@@ -76,13 +76,8 @@ For this project, I used 3 different naming conventions, besides naming elements
     - CO = carbon monoxide
     - SF6 = sulfur hexafluoride
     - N2O = dinitrogen monoxide
-    
+
     The first 10 prefixes are: mono-, di-, tri-, tetra-, penta-, hexa-, hepta-, octa-, nona-, deca-.
 
 Although these naming rules can cover quite a few compounds, there are some exceptions... hence the [exceptions.txt] file. Take water for example: even though it starts with Hydrogen, it is not an acid, so it's not hydroxic acid. And you might have heard it called dihydrogen monoxide too, but the accepted chemical name for H2O is indeed just "water".
 
-## Todo list
-
-- Implement the name->formula function
-- Allow for the use of parantheses in formulas
-- Allow for alternate forms of some compounds (like how acetate is written different ways)

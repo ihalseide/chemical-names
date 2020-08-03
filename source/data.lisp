@@ -18,7 +18,7 @@
 (defparameter *compounds* nil
   "A list of the chemical compounds.") 
 
-(defun make-element (atomic-number symbol name name-root period group is-metal &optional charges diatomic)
+(defun make-element (atomic-number symbol name name-root period group metal? &optional charges diatomic)
   "Create information for an element"
   (list :atomic-number atomic-number
         :symbol symbol
@@ -26,7 +26,7 @@
         :name-root name-root
         :period period
         :group group
-        :is-metal is-metal
+        :metal? metal?
         :charges (convert-charges charges)
         :diatomic diatomic))
 
