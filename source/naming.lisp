@@ -157,7 +157,8 @@
 
 (defun metal? (element)
   "Get if a element designator is a metal"
-  (get-compound-attribute 'element
-                          (element->symbol element)
-                          :metal?))
+  (eq 'metal
+      (get-compound-attribute 'element
+                              (element->symbol element)
+                              :metal?))
 
